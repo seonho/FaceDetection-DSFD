@@ -184,8 +184,7 @@ class SSD(nn.Module):
     
     def init_priors(self ,cfg , min_size=cfg['min_sizes'], max_size=cfg['max_sizes']):
         priorbox = PriorBox(cfg , min_size, max_size)
-        prior = Variable( priorbox.forward() , volatile=True)
-        return prior
+        return priorbox.forward()
         
     def forward(self, x):
         """Applies network layers and ops on input image(s) x.
@@ -396,7 +395,7 @@ class SSD(nn.Module):
 
     def _upsample_add(self, x, y):
         _,_,H,W = y.size()
-        return F.upsample(x, size=(H,W), mode='bilinear') + y
+        return F.interpolate(x, size=(H,W), mode='bilinear', align_corners=True) + y
 
     def _upsample_product(self, x, y):
         '''Upsample and add two feature maps.
@@ -415,7 +414,7 @@ class SSD(nn.Module):
         So we choose bilinear upsample which supports arbitrary output sizes.
         '''
         _,_,H,W = y.size()
-        return F.upsample(x, size=(H,W), mode='bilinear') * y
+        return F.interpolate(x, size=(H,W), mode='bilinear', align_corners=True) * y
 
 # This function is derived from torchvision VGG make_layers()
 # https://github.com/pytorch/vision/blob/master/torchvision/models/vgg.py
